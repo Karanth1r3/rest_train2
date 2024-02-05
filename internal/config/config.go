@@ -9,11 +9,16 @@ import (
 type (
 	Config struct {
 		HTTPServer `json:"http"`
+		Logger     Logger `json:"logger"`
 	}
 
 	HTTPServer struct {
 		Address string `json:"address"`
-		Port    int    `json:"port"`
+		//Port    int    `json:"port"`
+	}
+
+	Logger struct {
+		LogLevel string `json:"loglevel"`
 	}
 )
 

@@ -1,12 +1,16 @@
 package main
 
 import (
-	"log/slog"
-	"os"
+	"log"
 
 	apiserver "github.com/Karanth1r3/rest-train-2/internal/app/api_server"
 	"github.com/Karanth1r3/rest-train-2/internal/config"
 	"github.com/Karanth1r3/rest-train-2/internal/utils/slg"
+)
+
+const (
+	infoLevel  = "info"
+	debugLevel = "debug"
 )
 
 var (
@@ -16,18 +20,35 @@ var (
 func main() {
 
 	// Initializing logger
-	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelError}))
 
 	//Initializing config
 	cfg, err := config.ReadConfig(configPath)
 	if err != nil {
-		slg.LogErrorFatal(logger, "could not initialize config: ", err)
+		log.Fatal(err)
 	}
-	_ = cfg
-	serv := apiserver.New()
+
+	serv := apiserver.New(cfg)
 
 	if err := serv.Start(); err != nil {
 		//log.Fatal()
-		slg.LogErrorFatal(logger, "could not start apiserver:", err)
+		slg.LogErrorFatal(serv.Logger, "could not start apiserver:", err)
 	}
 }
+
+// For experimental reasons this one is put into app.apiserver.apiserver.go (looks like it's a bad idea - it's fields are public to be able to be called from main)
+/*
+func setupLogger(cfg config.Config) *slog.Logger {
+	var log *slog.Logger
+	switch cfg.Logger.LogLevel {
+	case debugLevel:
+		log = slog.New(
+			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
+		)
+	case infoLevel:
+		log = slog.New(
+			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}),
+		)
+	}
+	return log
+}
+*/
